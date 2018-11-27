@@ -54,7 +54,8 @@ before_install:
     - export QT_API=pyqt
 
 install:
-    - git clone git://github.com/astropy/ci-helpers.git
+    - git clone git://github.com/astrofrog/ci-helpers.git
+    - cd ci-helpers; git checkout pytest-lts; cd ..
     - source ci-helpers/travis/setup_conda.sh
 
 script:
