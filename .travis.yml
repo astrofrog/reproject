@@ -9,6 +9,7 @@ sudo: false
 
 env:
     global:
+        - DEBUG=True
         - NUMPY_VERSION=1.13
         - ASTROPY_VERSION=stable
         - SETUP_CMD='test'
