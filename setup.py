@@ -5,6 +5,10 @@ import glob
 import os
 import sys
 
+if 'sdist' in sys.argv and 'build' not in sys.argv:
+    sys.argv.insert(sys.argv.index('sdist'), 'build')
+    print(sys.argv)
+
 import ah_bootstrap
 from setuptools import setup
 
