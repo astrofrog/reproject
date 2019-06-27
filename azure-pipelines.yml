@@ -11,7 +11,7 @@ jobs:
   parameters:
     tox_version: 'tox'
     jobs:
-      py36-test:
+      py36_test:
         image: [linux, windows, macOs]
-      py37-test:
+      py37_test:
         image: [linux, windows, macOs]
