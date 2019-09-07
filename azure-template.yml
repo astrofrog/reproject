@@ -42,7 +42,7 @@ jobs:
     displayName: "Building source distribution"
   - script: 'python -m pip install `find wheelhouse -name "*.tar.gz"`[test]'
     displayName: "Installing source distribution"
-  - script: '$(CIBW_TEST_COMMAND)'
+  - script: 'mkdir .tmp ; cd .tmp ; $(CIBW_TEST_COMMAND) ; cd ..'
     displayName: "Running tests"
   - task: PublishPipelineArtifact@0
     inputs:
