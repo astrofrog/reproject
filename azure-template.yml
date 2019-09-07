@@ -30,7 +30,7 @@ jobs:
         - task: PublishPipelineArtifact@0
           inputs:
             targetPath: 'wheelhouse'
-            artifactName: 'wheels_${{ platform }}'
+            artifactName: ${{ target }}
 
   - ${{ if eq(target, 'sdist') }}:
 
