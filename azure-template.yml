@@ -23,7 +23,7 @@ jobs:
         - bash: python -m pip install --upgrade pip
           displayName: Upgrading pip
         # - bash: python -m pip install cibuildwheel
-        - bash: python -m pip install git+https://github.com/astrofrog/cibuildwheel@test-extras-require
+        - bash: python -m pip install git+https://github.com/astrofrog/cibuildwheel@virtualenv
           displayName: Installing cibuildwheel
         - bash: cibuildwheel --output-dir wheelhouse .
           displayName: Running cibuildwheel
