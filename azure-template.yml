@@ -1,12 +1,11 @@
 parameters:
-  # platforms: ['linux', 'macosx', 'windows']
-  platforms: []
+  platforms: ['linux', 'macosx', 'windows']
   external_feed: 'pypi_test'
 
 jobs:
 - ${{ each platform in parameters.platforms }}:
 
-  - job: ${{ platform }}
+  - job: "wheels_"${{ platform }}
     pool:
       ${{ if eq(platform, 'macosx') }}:
         vmImage: macOS 10.13
@@ -53,7 +52,7 @@ jobs:
       artifactName: 'sdist'
 
 - job: publish
-  dependsOn: [sdist] + ${{ parameters.platforms }}
+  dependsOn: [sdist, wheels_linux, wheels_macosx, wheels_windows]
   condition: succeeded()
   pool:
     vmImage: 'Ubuntu-16.04'
