@@ -5,7 +5,7 @@ parameters:
 jobs:
 - ${{ each platform in parameters.platforms }}:
 
-  - job: "wheels_"${{ platform }}
+  - job: wheels_${{ platform }}
     pool:
       ${{ if eq(platform, 'macosx') }}:
         vmImage: macOS 10.13
