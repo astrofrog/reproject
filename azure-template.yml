@@ -1,11 +1,12 @@
 parameters:
   # platforms: ['linux', 'macosx', 'windows']
   platforms: []
+  external_feed: 'pypi_test'
 
 jobs:
 - ${{ each platform in parameters.platforms }}:
 
-  - job: wheels_${{ platform }}
+  - job: ${{ platform }}
     pool:
       ${{ if eq(platform, 'macosx') }}:
         vmImage: macOS 10.13
@@ -50,3 +51,22 @@ jobs:
     inputs:
       targetPath: 'wheelhouse'
       artifactName: 'sdist'
+
+- job: publish
+  dependsOn: [sdist] + ${{ parameters.platforms }}
+  condition: succeeded()
+  pool:
+    vmImage: 'Ubuntu-16.04'
+  steps:
+  - checkout: none
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.7'
+  - script: 'python -m pip install twine  --upgrade'
+    displayName: "Installing twine"
+  - task: DownloadPipelineArtifact@1
+  - task: TwineAuthenticate@0
+    inputs:
+      externalFeeds: ${{ parameters.external_feed }}
+  - script: 'python -m twine upload -r test --config-file $(PYPIRC_PATH) "$(System.ArtifactsDirectory)/*/*"'
+    displayName: "Uploading packages to test.pypi.org"
