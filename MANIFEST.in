@@ -2,9 +2,10 @@ include README.rst
 include CHANGES.md
 include LICENSE.md
 
-include ez_setup.py
-include ah_bootstrap.py
+include setup.py
 include setup.cfg
+
+include pyproject.toml
 
 recursive-include *.pyx *.c *.pxd
 recursive-include docs *
