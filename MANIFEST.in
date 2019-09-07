@@ -7,7 +7,7 @@ include setup.cfg
 
 include pyproject.toml
 
-recursive-include *.pyx *.c *.pxd
+recursive-include reproject *.pyx *.c *.pxd
 recursive-include docs *
 recursive-include licenses *
 recursive-include cextern *
