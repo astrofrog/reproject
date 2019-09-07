@@ -1,0 +1,25 @@
+parameters:
+  platforms: ['linux', 'macosx', 'windows']
+
+jobs:
+- ${{ each platform in parameters.platforms }}:
+
+  - job: wheels_${{ platform }}
+    pool:
+      ${{ if eq(platform, 'macosx') }}:
+        vmImage: macOS 10.13
+      ${{ if eq(platform, 'linux') }}:
+        vmImage: Ubuntu 16.04
+      ${{ if eq(platform, 'windows') }}:
+        vmImage: vs2017-win2016
+
+    steps:
+      - task: UsePythonVersion@0
+      - bash: python -m pip install --upgrade pip
+        displayName: Upgrading pip
+      - bash: python -m pip install cibuildwheel
+        displayName: Installing cibuildwheel
+      - bash: cibuildwheel --output-dir wheelhouse .
+        displayName: Running cibuildwheel
+      - task: PublishPipelineArtifact@0
+        inputs: {targetPath: 'wheelhouse', artifactName: 'wheels_${{ platform }}' }
