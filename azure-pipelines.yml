@@ -7,5 +7,5 @@ variables:
 jobs:
 - template: azure-template.yml
   parameters:
-    targets: [wheels_macosx]
+    targets: [wheels_linux, wheels_macosx, wheels_windows]
     # targets: [sdist, wheels_linux, wheels_macosx, wheels_windows]
