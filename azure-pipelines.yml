@@ -4,8 +4,15 @@ variables:
   CIBW_TEST_COMMAND: pytest -p no:warnings --pyargs reproject
   CIBW_TEST_EXTRAS: test
 
+resources:
+  repositories:
+  - repository: OpenAstronomy
+    type: github
+    endpoint: astrofrog
+    name: OpenAstronomy/azure-pipelines-template
+    ref: master
+
 jobs:
-- template: azure-template.yml
+- template: publish.yml@OpenAstronomy
   parameters:
-    targets: [wheels_linux, wheels_macosx, wheels_windows]
-    # targets: [sdist, wheels_linux, wheels_macosx, wheels_windows]
+    targets: [sdist, wheels_linux, wheels_macosx, wheels_windows]
