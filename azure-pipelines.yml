@@ -13,10 +13,13 @@ resources:
 jobs:
 - template: publish.yml@OpenAstronomy
   parameters:
-    test_command: pytest -p no:warnings --pyargs reproject
-    test_extras: test
+    # test_command: pytest -p no:warnings --pyargs reproject
+    # test_extras: test
+    pypi_remote: pypi_test
+    external_feed: pypi_test
     targets:
     - sdist
-    - wheels_linux
-    - wheels_macosx
-    - wheels_windows
+
+    # - wheels_linux
+    # - wheels_macosx
+    # - wheels_windows
