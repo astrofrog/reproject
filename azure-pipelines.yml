@@ -15,8 +15,7 @@ jobs:
   parameters:
     # test_command: pytest -p no:warnings --pyargs reproject
     # test_extras: test
-    pypi_remote: pypi_test
-    external_feed: pypi_test
+    pypi_connection_name: pypi_test
     targets:
     - sdist
 
