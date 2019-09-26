@@ -14,6 +14,7 @@ jobs:
 
 - template: run-tox-env.yml@OpenAstronomy
   parameters:
+    coverage: codecov
     envs:
     #- linux: pep8
     #- macos: py37-test
