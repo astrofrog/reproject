@@ -34,15 +34,4 @@ version = generate_version_py()
 # details.
 package_info = get_package_info()
 
-if is_distutils_display_option():
-    # Avoid installing setup_requires dependencies if the user just
-    # queries for information
-    setup_requires = []
-else:
-    setup_requires = read_configuration('setup.cfg')['options']['setup_requires']
-    # Make sure we have the packages needed for building astropy, but do not
-    # require them when installing from an sdist as the c files are included.
-    if not os.path.exists(os.path.join(os.path.dirname(__file__), 'PKG-INFO')):
-        setup_requires.extend(['cython>=0.29.13'])
-
-setup(version=version, cmdclass=cmdclass, setup_requires=setup_requires, **package_info)
+setup(version=version, cmdclass=cmdclass, **package_info)
