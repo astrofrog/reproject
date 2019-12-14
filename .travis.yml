@@ -24,10 +24,8 @@ before_install:
     - git fetch --depth=1000000
 
 install:
-    - pip install tox --upgrade
     - git clone --branch tox-apply-ci-patches git://github.com/astrofrog/ci-helpers.git;
-    - source ci-helpers/tox/apply_ci_patches.sh;
 
 script:
-    - tox -e $TOXENV $TOXARGS -- $TOXPOSARGS
+    - source ci-helpers/tox/run_tox.sh;
 
