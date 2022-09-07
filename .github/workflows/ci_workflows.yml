@@ -11,7 +11,6 @@ concurrency:
 jobs:
 
   publish:
-    needs: tests
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish.yml@v1
     with:
       test_extras: test
