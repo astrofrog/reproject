@@ -16,5 +16,6 @@ jobs:
       - name: Python version
         run: python --version
       - name: Header
-        run: cat /hostedtoolcache/windows/Python/3.13.4/x64/include/Python.h
-        shell: bash
+        run: |
+          type C:\hostedtoolcache\windows\Python\3.13.4\x64\include\Python.h
+        shell: cmd
