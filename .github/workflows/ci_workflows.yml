@@ -19,3 +19,6 @@ jobs:
         run: |
           type C:\hostedtoolcache\windows\Python\3.13.4\x64\include\Python.h
         shell: cmd
+      - name: Show Py_GIL_DISABLED value
+        run: findstr /S /C:"#define Py_GIL_DISABLED" C:\hostedtoolcache\windows\Python\3.13.4\x64\include\*.h
+        shell: cmd
