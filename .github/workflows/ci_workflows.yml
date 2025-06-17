@@ -1,58 +1,20 @@
-name: CI
+name: Windows Python 3.13 CI
 
 on:
-  schedule:
-    # run every day at 4am UTC
-    - cron: '0 4 * * *'
   push:
   pull_request:
-  workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
-
-  tests:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@8c0fde6f7e926df6ed7057255d29afa9c1ad5320  # v1.16.0
-    with:
-      envs: |
-        - macos: py311-test-oldestdeps
-        - macos: py312-test
-        - macos: py313-test
-        - linux: py311-test-oldestdeps
-        - linux: py312-test
-          runs-on: ubuntu-24.04-arm
-        - linux: py313-test-devdeps
-        - windows: py311-test-oldestdeps
-        - windows: py312-test
-        - windows: py313-test
-      libraries: |
-        apt:
-          - libopenblas-dev
-      coverage: 'codecov'
-
-  publish:
-    needs: tests
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish.yml@8c0fde6f7e926df6ed7057255d29afa9c1ad5320  # v1.16.0
-    with:
-      test_extras: test
-      test_command: pytest -p no:warnings --pyargs reproject
-      targets: |
-        - cp*-manylinux_x86_64
-        - target: cp*-manylinux_aarch64
-          runs-on: ubuntu-24.04-arm
-        - cp*-macosx_x86_64
-        - cp*-macosx_arm64
-        - cp*-win_amd64
-
-      # Developer wheels
-      upload_to_anaconda: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
-      anaconda_user: astropy
-      anaconda_package: reproject
-      anaconda_keep_n_latest: 10
-
-    secrets:
-      pypi_token: ${{ secrets.pypi_token }}
-      anaconda_token: ${{ secrets.anaconda_token }}
+  test-windows-py313:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Python version
+        run: python --version
+      - name: Header
+        run: cat /hostedtoolcache/windows/Python/3.13.4/x64/include/Python.h
+        shell: bash
