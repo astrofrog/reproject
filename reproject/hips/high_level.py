@@ -74,8 +74,8 @@ def reproject_to_hips(
 
     if (
         has_celestial(wcs_in)
-        and wcs_in.low_level_wcs.pixel_n_dim == 2
-        and wcs_in.low_level_wcs.world_n_dim == 2
+        and wcs_in.low_level_wcs.pixel_n_dim in (2, 3)
+        and wcs_in.low_level_wcs.world_n_dim == wcs_in.low_level_wcs.pixel_n_dim
     ):
         return image_to_hips(
             array_in,
@@ -89,7 +89,7 @@ def reproject_to_hips(
         )
     else:
         raise NotImplementedError(
-            "Only data with a 2-d celestial WCS can be reprojected to HiPS tiles"
+            "Only data with a 2-d celestial WCS or a 3-d WCS with a celestial component can be reprojected to HiPS tiles"
         )
 
 
