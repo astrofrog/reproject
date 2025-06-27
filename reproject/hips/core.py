@@ -10,11 +10,12 @@ from astropy.io import fits
 from astropy.nddata import block_reduce
 from astropy_healpix import HEALPix, level_to_nside
 from PIL import Image
+from astropy import units as u
 
 from ..utils import as_rgb_images, as_transparent_rgb
 from .utils import make_tile_folders, tile_filename, tile_header
 
-__all__ = ["image_to_hips", "coadd_hips"]
+__all__ = ["image_to_hips", "coadd_hips", "determine_healpix_level"]
 
 INDEX_HTML = """
 <!DOCTYPE html>
@@ -53,11 +54,12 @@ def image_to_hips(
     wcs_in,
     coord_system_out,
     *,
-    level,
     reproject_function,
     output_directory,
     tile_size,
     tile_format,
+    output_id=None,
+    level=None,
     progress_bar=None,
     **kwargs,
 ):
@@ -72,10 +74,17 @@ def image_to_hips(
         The WCS of the input array
     coord_system_out : {'equatorial', 'galactic', 'ecliptic' }
         The target coordinate system for the HEALPIX projection
-    level : int
-        The number of levels of FITS tiles.
+    level : int, optional
+        The number of levels of FITS tiles. If not provided, will be determined
+        automatically.
     reproject_function : callable
         The function to use for the reprojection.
+    output_id : str, optional
+        A unique identifier for the output. If not provided, will be generated
+        from the output directory.  This string is the index name in HIPS
+        aggregators and generally follows the form 'host/P/name', with host
+        being the hosting data source (e.g., CDS) and name being a short descriptive
+        name
     output_directory : str
         The name of the output directory.
     tile_size : int, optional
@@ -105,6 +114,12 @@ def image_to_hips(
 
     if progress_bar is None:
         progress_bar = lambda x: x
+
+    if level is None:
+        level = determine_healpix_level(wcs_in, tile_size)
+        pixel_size = (4 * np.pi * u.sr / (12 * (2**level)**2)).to(u.arcsec**2)**0.5
+        tile_angular_size = pixel_size * tile_size
+        logger.info(f"Automatically set the HEALPIX level to {level} with tile size {tile_angular_size} and pixel size {pixel_size}")
 
     # Create output directory (and error if it already exists)
     os.makedirs(output_directory, exist_ok=False)
@@ -255,8 +270,13 @@ def image_to_hips(
 
     cen_icrs = cen_world.icrs
 
+    if output_id is None:
+        creator_did = f"ivo://reproject/P/{str(uuid.uuid4())}"
+    else:
+        creator_did = f"ivo://{output_id}"
+
     properties = {
-        "creator_did": f"ivo://reproject/P/{str(uuid.uuid4())}",
+        "creator_did": creator_did,
         "obs_title": os.path.dirname(output_directory),
         "dataproduct_type": "image",
         "hips_version": "1.4",
@@ -324,7 +344,7 @@ def coadd_hips(input_directories, output_directory):
     hips_order = [p["hips_order"] for p in all_properties]
 
     if len(set(tile_formats)) > 1:
-        raise ValueError("tile_format values do not match: {tile_formats}")
+        raise ValueError(f"tile_format values do not match: {tile_formats}")
     else:
         tile_format = tile_formats[0]
 
@@ -356,6 +376,8 @@ def coadd_hips(input_directories, output_directory):
                         image2 = Image.open(target_filepath).convert("RGBA")
                         result = Image.alpha_composite(image1, image2)
                         result.save(target_filepath)
+                    elif tile_format == "jpeg":
+                        raise NotImplementedError("Convert jpg to png to allow for blending/coadding")
                     else:
                         raise NotImplementedError()
                 else:
@@ -364,3 +386,32 @@ def coadd_hips(input_directories, output_directory):
     save_properties(output_directory, reference_properties)
 
     save_index(output_directory)
+
+
+def determine_healpix_level(wcs_in, tile_size):
+    """
+    Determine the appropriate HEALPix level by matching the HEALPix pixel size
+    to the input image pixel size.
+
+    Parameters
+    ----------
+    wcs_in : `~astropy.wcs.WCS`
+        The WCS of the input array
+    tile_size : int
+        The size of the tile in pixels
+
+    Returns
+    -------
+    level : int
+        The recommended HEALPix level
+    """
+
+    # Get the pixel scale from the input WCS
+    pixel_scale = wcs_in.proj_plane_pixel_area()**0.5
+
+    from astropy_healpix import pixel_resolution_to_nside, nside_to_level
+
+    target_nside = pixel_resolution_to_nside(pixel_scale * tile_size)
+    target_level = nside_to_level(target_nside)
+
+    return target_level
