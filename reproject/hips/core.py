@@ -413,7 +413,7 @@ def coadd_hips(input_directories, output_directory):
                         header = fits.getheader(filepath)
                         image1 = fits.getdata(filepath)
                         image2 = fits.getdata(target_filepath)
-                        result = (image1 + image2) / 2
+                        result = np.average([image1, image2], axis=0)
                         fits.writeto(target_filepath, result, header, overwrite=True)
                     else:
                         raise NotImplementedError(f"Tile format {tile_format} not implemented")
