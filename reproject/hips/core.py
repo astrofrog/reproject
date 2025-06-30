@@ -409,8 +409,14 @@ def coadd_hips(input_directories, output_directory):
                         raise NotImplementedError(
                             "Convert jpg to png to allow for blending/coadding"
                         )
+                    elif tile_format == "fits":
+                        header = fits.getheader(filepath)
+                        image1 = fits.getdata(filepath)
+                        image2 = fits.getdata(target_filepath)
+                        result = np.average([image1, image2], axis=0)
+                        fits.writeto(target_filepath, result, header, overwrite=True)
                     else:
-                        raise NotImplementedError()
+                        raise NotImplementedError(f"Tile format {tile_format} not implemented")
                 else:
                     shutil.copyfile(filepath, target_filepath)
 
