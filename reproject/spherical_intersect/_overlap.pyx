@@ -4,11 +4,11 @@ import cython
 
 ctypedef np.double_t DOUBLE_T
 
-cdef extern from "overlapArea.h":
+cdef extern from "overlapArea.h" nogil:
     double computeOverlap(double * ilon, double * ilat, double * olon, double * olat,
                           int energyMode, double refArea, double * areaRatio)
 
-cdef extern from "reproject_slice_c.h":
+cdef extern from "reproject_slice_c.h" nogil:
     void _reproject_slice_c(int startx, int endx, int starty, int endy, int nx_out, int ny_out,
         double *xp_inout, double *yp_inout, double *xw_in, double *yw_in, double *xw_out, double *yw_out,
         double *array, double *array_new, double *weights,
@@ -37,12 +37,13 @@ def _reproject_slice_cython(int startx, int endx, int starty, int endy, int nx_o
     cdef int col_array = array.shape[1]
     cdef int col_new = array_new.shape[1]
 
-    # Call the C function now.
-    _reproject_slice_c(startx,endx,starty,endy,nx_out,ny_out,
-        &xp_inout[0,0],&yp_inout[0,0],
-        &xw_in[0,0],&yw_in[0,0],&xw_out[0,0],&yw_out[0,0],&array[0,0],
-        &array_new[0,0],&weights[0,0],
-        col_in,col_out,col_array,col_new)
+    # Call the C function now, releasing the GIL since it's pure C computation.
+    with nogil:
+        _reproject_slice_c(startx,endx,starty,endy,nx_out,ny_out,
+            &xp_inout[0,0],&yp_inout[0,0],
+            &xw_in[0,0],&yw_in[0,0],&xw_out[0,0],&yw_out[0,0],&array[0,0],
+            &array_new[0,0],&weights[0,0],
+            col_in,col_out,col_array,col_new)
 
     return array_new,weights
 
@@ -58,8 +59,9 @@ def _compute_overlap(np.ndarray[double, ndim=2] ilon,
     cdef np.ndarray[double, ndim = 1] overlap = np.empty(n, dtype=np.double)
     cdef np.ndarray[double, ndim = 1] area_ratio = np.empty(n, dtype=np.double)
 
-    for i in range(n):
-        overlap[i] = computeOverlap(& ilon[i, 0], & ilat[i, 0], & olon[i, 0], & olat[i, 0],
-                                    0, 1, & area_ratio[i])
+    with nogil:
+        for i in range(n):
+            overlap[i] = computeOverlap(& ilon[i, 0], & ilat[i, 0], & olon[i, 0], & olat[i, 0],
+                                        0, 1, & area_ratio[i])
 
     return overlap, area_ratio
