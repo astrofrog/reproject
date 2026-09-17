@@ -43,6 +43,12 @@ jobs:
       libraries: |
         apt:
           - libopenblas-dev
+      # mocpy has no freethreaded wheels so is built from source on py3xxt
+      # jobs, and rustup needs these to find the toolchain since tox
+      # overrides HOME
+      setenv: |
+        RUSTUP_HOME: /home/runner/.rustup
+        CARGO_HOME: /home/runner/.cargo
       coverage: 'codecov-oidc'
 
   build:
