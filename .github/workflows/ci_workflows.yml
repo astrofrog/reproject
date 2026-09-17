@@ -31,11 +31,15 @@ jobs:
           runs-on: ubuntu-24.04-arm
         - linux: py313-test
         - linux: py314-test-devdeps
-        - linux: py314t-test
         - windows: py311-test-oldestdeps
         - windows: py312-test
         - windows: py313-test
         - windows: py314-test
+
+        # Builds using pytest-run-parallel - for now these require astropy dev
+        - linux: py314-test-devdeps-parallel
+        - linux: py314t-test-devdeps-parallel
+
       libraries: |
         apt:
           - libopenblas-dev
