@@ -914,7 +914,9 @@ class TestReprojectAndCoAdd:
         input_data = [(array1, self.wcs), (array2, self.wcs)]
 
         # make weight WCS pixel scale bigger so that weights encompass data
-        weightwcs = self.wcs.copy()
+        # (deepcopy: WCS.copy() shares the underlying wcsprm, so the in-place
+        # cdelt scaling below would modify self.wcs as well)
+        weightwcs = self.wcs.deepcopy()
         weightwcs.wcs.cdelt *= 1.1
 
         hdu1 = fits.ImageHDU(weight1, header=weightwcs.to_header())
